@@ -81,6 +81,11 @@ def calcular_scores(df, diccionario):
             pond_comp = pond_comp_dict.get(competencia, 1)
             score_categoria.loc[idx] = score_categoria.loc[idx] * pond_comp
         
+        # Normalizar a rango 0-100 después de ponderar por competencia
+        max_score = score_categoria.max()
+        if max_score > 0:
+            score_categoria = (score_categoria / max_score) * 100
+        
         scores_por_categoria[f'Score_{categoria.replace(" ", "_")}'] = score_categoria
     
     # Calcular score global (promedio de todos los scores de categoría)
