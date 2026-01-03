@@ -108,16 +108,24 @@ else:
         # Obtener datos del jugador seleccionado
         jugador_data = df_pool[df_pool['id_jugador'] == jugador_seleccionado].iloc[0]
         
+        # Filtrar pool solo a la competencia del jugador seleccionado
+        competencia_jugador = jugador_data['Competencia']
+        df_pool_competencia = df_pool[df_pool['Competencia'] == competencia_jugador].copy()
+        
         # Mostrar información básica del jugador
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2, col3, col4, col5 = st.columns(5)
         with col1:
             st.metric("Jugador", jugador_data['jugador'])
         with col2:
             st.metric("Equipo", jugador_data['TeamName'])
         with col3:
-            st.metric("Edad", f"{int(jugador_data['age'])} años")
+            st.metric("Competencia", competencia_jugador)
         with col4:
+            st.metric("Edad", f"{int(jugador_data['age'])} años")
+        with col5:
             st.metric("Minutos", int(jugador_data['minutos_totales']))
+        
+        st.info(f"📊 Comparando con {len(df_pool_competencia)} porteros de {competencia_jugador}")
         
         st.markdown("---")
         
@@ -140,8 +148,8 @@ else:
                 continue
             
             # Calcular Z-scores
-            z_scores_data = []
-            player_zscores = {}
+            z_scores_data = [] de la competencia
+                values = df_pool_competencia
             
             for var in variables:
                 # Verificar si la variable debe invertirse
@@ -163,8 +171,8 @@ else:
                 # Obtener nombre bonito de la variable
                 nombre_bonito = nombre_map.get(var, var)
                 
-                # Z-scores para todos los jugadores
-                for idx, row in df_pool.iterrows():
+                # Z-scores solo para jugadores de la misma competencia
+                for idx, row in df_pool_competencia.iterrows():
                     if pd.notna(row[var]):
                         z_score = (row[var] - mean_val) / std_val
                         
@@ -251,11 +259,10 @@ else:
             ax.tick_params(axis='x', labelsize=10)
             
             # Título con información del contexto
-            comp_text = ", ".join(competencias_seleccionadas) if len(competencias_seleccionadas) <= 3 else f"{len(competencias_seleccionadas)} competencias"
             temp_text = ", ".join(map(str, temporadas_seleccionadas)) if len(temporadas_seleccionadas) <= 3 else f"{len(temporadas_seleccionadas)} temporadas"
             
             ax.set_title(
-                f"{jugador_data['jugador']} - {categoria}\\n{comp_text} | {temp_text} | {len(df_pool)} porteros",
+                f"{jugador_data['jugador']} - {categoria}\n{competencia_jugador} | {temp_text} | {len(df_pool_competencia)} porteros",
                 fontsize=13,
                 fontweight='bold',
                 pad=15
