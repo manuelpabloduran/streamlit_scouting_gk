@@ -47,12 +47,19 @@ def calcular_scores(df, diccionario):
             # Obtener valores de la métrica
             valores = df_trabajo[metrica].copy()
             
+            # Skip si todos los valores son NaN
+            if valores.isna().all():
+                continue
+            
             # Invertir si es necesario (mayor valor = peor)
             if invertir:
                 valores = -valores
             
-            # Calcular percentil (0-100)
-            percentiles = valores.rank(pct=True) * 100
+            # Calcular percentil (0-100), usando method='average' y manejando NaN
+            percentiles = valores.rank(pct=True, method='average', na_option='keep') * 100
+            
+            # Reemplazar NaN por 0 (jugadores sin datos en esta métrica obtienen score 0)
+            percentiles = percentiles.fillna(0)
             
             # Aplicar ponderación
             score_categoria += percentiles * ponderacion
@@ -108,12 +115,19 @@ def calcular_percentiles_variables(df, diccionario):
         # Obtener valores de la métrica
         valores = df_trabajo[metrica].copy()
         
+        # Skip si todos los valores son NaN
+        if valores.isna().all():
+            continue
+        
         # Invertir si es necesario (mayor valor = peor)
         if invertir:
             valores = -valores
         
-        # Calcular percentil (0-100)
-        percentiles = valores.rank(pct=True) * 100
+        # Calcular percentil (0-100), usando method='average' y manejando NaN
+        percentiles = valores.rank(pct=True, method='average', na_option='keep') * 100
+        
+        # Reemplazar NaN por 0 (jugadores sin datos en esta métrica obtienen percentil 0)
+        percentiles = percentiles.fillna(0)
         
         # Agregar al dataframe con el nombre limpio
         col_name = f'Percentil_{nombre_limpio}'
