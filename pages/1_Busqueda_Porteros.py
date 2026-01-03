@@ -137,6 +137,9 @@ rename_dict = {
     'TeamName': 'Equipo',
     'Competencia': 'Competencia',
     'Temporada': 'Temporada',
+    'age': 'Edad',
+    'height': 'Altura (cm)',
+    'weight': 'Peso (kg)',
     'minutos_totales': 'Minutos Totales'
 }
 
