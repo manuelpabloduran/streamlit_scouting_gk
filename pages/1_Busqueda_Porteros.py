@@ -19,16 +19,32 @@ st.title("🔍 Búsqueda de Porteros")
 nombre_map = dict(zip(diccionario['metrica'], diccionario['nombre_limpio']))
 
 # Columnas base que siempre se muestran
-columnas_base = ['jugador', 'TeamName', 'Competencia', 'Temporada', 'minutos_totales']
-
-# Obtener métricas del diccionario (solo las que están en el dataset)
-metricas_disponibles = [col for col in diccionario['metrica'].tolist() if col in df.columns]
+columnas_base = ['jugador', 'TeamName', 'Competencia', 'Temporada', 'age', 'height', 'weight', 'minutos_totales']
 
 # FILTROS
 st.sidebar.header("Filtros")
 
+# Filtro de categorías de métricas
+categorias_disponibles = sorted(diccionario['categoria'].dropna().unique())
+categorias_seleccionadas = st.sidebar.multiselect(
+    "Categorías de Métricas",
+    options=categorias_disponibles,
+    default=[]
+)
+
+# Obtener métricas del diccionario según categorías seleccionadas
+if categorias_seleccionadas:
+    # Filtrar métricas por categorías seleccionadas
+    metricas_disponibles = [
+        col for col in diccionario[diccionario['categoria'].isin(categorias_seleccionadas)]['metrica'].tolist() 
+        if col in df.columns
+    ]
+else:
+    # Si no hay categorías seleccionadas, mostrar todas
+    metricas_disponibles = [col for col in diccionario['metrica'].tolist() if col in df.columns]
+
 # Filtro de minutos totales
-min_minutos = int(df['minutos_totales'].min())
+min_minutos = 450
 max_minutos = int(df['minutos_totales'].max())
 minutos_range = st.sidebar.slider(
     "Minutos Totales Jugados",
@@ -36,6 +52,28 @@ minutos_range = st.sidebar.slider(
     max_value=max_minutos,
     value=(min_minutos, max_minutos)
 )
+
+# Filtro de edad
+if 'age' in df.columns:
+    min_edad = int(df['age'].min())
+    max_edad = int(df['age'].max())
+    edad_range = st.sidebar.slider(
+        "Edad",
+        min_value=min_edad,
+        max_value=max_edad,
+        value=(min_edad, max_edad)
+    )
+
+# Filtro de altura
+if 'height' in df.columns:
+    min_altura = int(df['height'].min())
+    max_altura = int(df['height'].max())
+    altura_range = st.sidebar.slider(
+        "Altura (cm)",
+        min_value=min_altura,
+        max_value=max_altura,
+        value=(min_altura, max_altura)
+    )
 
 # Filtro de competencias
 competencias_disponibles = sorted(df['Competencia'].unique())
@@ -62,6 +100,20 @@ df_filtrado = df_filtrado[
     (df_filtrado['minutos_totales'] <= minutos_range[1])
 ]
 
+# Filtro de edad
+if 'age' in df.columns:
+    df_filtrado = df_filtrado[
+        (df_filtrado['age'] >= edad_range[0]) & 
+        (df_filtrado['age'] <= edad_range[1])
+    ]
+
+# Filtro de altura
+if 'height' in df.columns:
+    df_filtrado = df_filtrado[
+        (df_filtrado['height'] >= altura_range[0]) & 
+        (df_filtrado['height'] <= altura_range[1])
+    ]
+
 # Filtro de competencias (si hay selección)
 if competencias_seleccionadas:
     df_filtrado = df_filtrado[df_filtrado['Competencia'].isin(competencias_seleccionadas)]
@@ -72,7 +124,6 @@ if temporadas_seleccionadas:
 
 # Mostrar contador de resultados
 st.info(f"📊 Mostrando {len(df_filtrado)} porteros de {len(df)} totales")
-
 # Preparar dataframe para mostrar
 columnas_a_mostrar = columnas_base + metricas_disponibles
 df_display = df_filtrado[columnas_a_mostrar].copy()
@@ -108,15 +159,8 @@ for metrica in metricas_disponibles:
 
 df_display = df_display.rename(columns=rename_dict)
 
-# Debug: Verificar duplicados
-duplicated_cols = df_display.columns[df_display.columns.duplicated()].tolist()
-if duplicated_cols:
-    st.error(f"Columnas duplicadas detectadas: {duplicated_cols}")
-    st.write("Todas las columnas:", df_display.columns.tolist())
-    # Hacer nombres únicos agregando sufijos
-    df_display.columns = pd.Index([f"{col}_{i}" if df_display.columns.tolist().count(col) > 1 and i > 0 else col 
-                                     for i, col in enumerate(df_display.columns)])
-    st.info("Columnas renombradas para hacerlas únicas")
+# Eliminar columnas duplicadas, manteniendo solo la primera aparición
+df_display = df_display.loc[:, ~df_display.columns.duplicated(keep='first')]
 
 # Formatear columnas de porcentaje (las que empiezan con pct_)
 def format_dataframe(df):
@@ -130,7 +174,7 @@ def format_dataframe(df):
                 metrica_original = k
                 break
         
-        # Si es una columna de porcentaje, formatear
+        # Si es una columna de porcentaje, formatear, 'Edad', 'Altura (cm)', 'Peso (kg)'
         if metrica_original and metrica_original.startswith('pct_'):
             df_formatted[col] = df_formatted[col].apply(
                 lambda x: f"{x*100:.2f}%" if pd.notna(x) else ""
