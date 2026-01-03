@@ -17,6 +17,13 @@ def calcular_scores(df, diccionario):
     """
     Calcula scores por categoría y global usando percentiles ponderados
     """
+    # Cargar ponderaciones por competencia
+    try:
+        df_pond_comp = pd.read_excel('ponderacion_competencias.xlsx')
+        pond_comp_dict = dict(zip(df_pond_comp['Competencia'], df_pond_comp['Ponderacion_Competencia']))
+    except:
+        pond_comp_dict = {}
+    
     df_scores = df[['jugador', 'TeamName', 'Competencia', 'Temporada', 'age', 'height', 'weight', 'minutos_totales']].copy()
     
     # Filtrar solo jugadores con mínimo 450 minutos
@@ -68,6 +75,12 @@ def calcular_scores(df, diccionario):
         # Normalizar por la suma de ponderaciones
         if suma_ponderaciones > 0:
             score_categoria = score_categoria / suma_ponderaciones
+        
+        # Aplicar ponderación por competencia
+        for idx in score_categoria.index:
+            competencia = df_trabajo.loc[idx, 'Competencia']
+            pond_comp = pond_comp_dict.get(competencia, 1)
+            score_categoria.loc[idx] = score_categoria.loc[idx] * pond_comp
         
         scores_por_categoria[f'Score_{categoria.replace(" ", "_")}'] = score_categoria
     
