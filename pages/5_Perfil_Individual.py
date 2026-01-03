@@ -148,16 +148,16 @@ else:
                 continue
             
             # Calcular Z-scores
-            z_scores_data = [] de la competencia
-                values = df_pool_competencia
+            z_scores_data = []
+            player_zscores = {}
             
             for var in variables:
                 # Verificar si la variable debe invertirse
                 var_info = diccionario[diccionario['metrica'] == var].iloc[0]
                 invertir = var_info['Invertir'] if pd.notna(var_info['Invertir']) else False
                 
-                # Calcular media y desviación estándar del pool
-                values = df_pool[var].dropna()
+                # Calcular media y desviación estándar del pool de la competencia
+                values = df_pool_competencia[var].dropna()
                 
                 if len(values) < 2:  # Necesitamos al menos 2 valores
                     continue
