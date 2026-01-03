@@ -14,7 +14,85 @@ def load_data():
     diccionario = pd.read_excel('diccionario_metricas_porteros.xlsx')
     return df, diccionario
 
+@st.cache_data
+def calcular_scores(df, diccionario):
+    """
+    Calcula scores por categoría y global usando percentiles ponderados
+    """
+    df_scores = df[['jugador', 'TeamName', 'Competencia', 'Temporada', 'age', 'height', 'weight', 'minutos_totales']].copy()
+    
+    # Filtrar solo jugadores con mínimo 450 minutos
+    df_trabajo = df[df['minutos_totales'] >= 450].copy()
+    
+    # Obtener categorías (excluyendo 'Otras')
+    categorias = [cat for cat in diccionario['categoria'].dropna().unique() if cat.lower() != 'otras']
+    
+    # Diccionario para almacenar scores por categoría
+    scores_por_categoria = {}
+    
+    for categoria in categorias:
+        # Filtrar métricas de esta categoría
+        metricas_cat = diccionario[diccionario['categoria'] == categoria]
+        
+        score_categoria = pd.Series(0.0, index=df_trabajo.index)
+        suma_ponderaciones = 0
+        
+        for _, row in metricas_cat.iterrows():
+            metrica = row['metrica']
+            ponderacion = row['Ponderacion'] if pd.notna(row['Ponderacion']) else 1
+            invertir = row['Invertir'] if pd.notna(row['Invertir']) else False
+            
+            # Verificar que la métrica existe en el dataframe
+            if metrica not in df_trabajo.columns:
+                continue
+            
+            # Obtener valores de la métrica
+            valores = df_trabajo[metrica].copy()
+            
+            # Skip si todos los valores son NaN
+            if valores.isna().all():
+                continue
+            
+            # Invertir si es necesario (mayor valor = peor)
+            if invertir:
+                valores = -valores
+            
+            # Calcular percentil (0-100), usando method='average' y manejando NaN
+            percentiles = valores.rank(pct=True, method='average', na_option='keep') * 100
+            
+            # Reemplazar NaN por 0 (jugadores sin datos en esta métrica obtienen score 0)
+            percentiles = percentiles.fillna(0)
+            
+            # Aplicar ponderación
+            score_categoria += percentiles * ponderacion
+            suma_ponderaciones += ponderacion
+        
+        # Normalizar por la suma de ponderaciones
+        if suma_ponderaciones > 0:
+            score_categoria = score_categoria / suma_ponderaciones
+        
+        scores_por_categoria[f'Score_{categoria.replace(" ", "_")}'] = score_categoria
+    
+    # Calcular score global (promedio de todos los scores de categoría)
+    if scores_por_categoria:
+        score_global = pd.DataFrame(scores_por_categoria).mean(axis=1)
+    else:
+        score_global = pd.Series(0.0, index=df_trabajo.index)
+    
+    scores_por_categoria['Score_Global'] = score_global
+    
+    # Agregar scores al dataframe original
+    for col_name, score_series in scores_por_categoria.items():
+        df_scores.loc[score_series.index, col_name] = score_series
+    
+    # Rellenar NaN con 0 para jugadores con menos de 450 minutos
+    score_columns = [col for col in df_scores.columns if col.startswith('Score_')]
+    df_scores[score_columns] = df_scores[score_columns].fillna(0)
+    
+    return df_scores
+
 df, diccionario = load_data()
+df_scores = calcular_scores(df, diccionario)
 
 st.title("👤 Perfil Individual de Portero")
 
@@ -105,15 +183,34 @@ else:
     )
     
     if jugador_seleccionado:
+        # CSS para reducir tamaño de fuente en metrics
+        st.markdown("""
+        <style>
+        [data-testid="stMetricValue"] {
+            font-size: 18px;
+        }
+        [data-testid="stMetricLabel"] {
+            font-size: 14px;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
         # Obtener datos del jugador seleccionado
         jugador_data = df_pool[df_pool['id_jugador'] == jugador_seleccionado].iloc[0]
+        
+        # Crear identificador para buscar scores
+        df_scores['id_jugador'] = df_scores['jugador'] + ' - ' + df_scores['Temporada'].astype(str) + ' - ' + df_scores['TeamName'] + ' - ' + df_scores['Competencia']
+        
+        # Obtener scores del jugador
+        jugador_scores = df_scores[df_scores['id_jugador'] == jugador_seleccionado]
+        score_global = jugador_scores['Score_Global'].iloc[0] if len(jugador_scores) > 0 else 0
         
         # Filtrar pool solo a la competencia del jugador seleccionado
         competencia_jugador = jugador_data['Competencia']
         df_pool_competencia = df_pool[df_pool['Competencia'] == competencia_jugador].copy()
         
         # Mostrar información básica del jugador
-        col1, col2, col3, col4, col5 = st.columns(5)
+        col1, col2, col3, col4, col5, col6 = st.columns(6)
         with col1:
             st.metric("Jugador", jugador_data['jugador'])
         with col2:
@@ -124,8 +221,65 @@ else:
             st.metric("Edad", f"{int(jugador_data['age'])} años")
         with col5:
             st.metric("Minutos", int(jugador_data['minutos_totales']))
+        with col6:
+            st.metric("🎯 Score Global", f"{score_global:.1f}")
         
         st.info(f"📊 Comparando con {len(df_pool_competencia)} porteros de {competencia_jugador}")
+        
+        st.markdown("---")
+        
+        # GRÁFICO LOLLIPOP DE SCORES POR CATEGORÍA
+        st.subheader("🎯 Scores por Categoría")
+        
+        # Obtener columnas de scores (excluyendo Score_Global)
+        score_columns = [col for col in jugador_scores.columns if col.startswith('Score_') and col != 'Score_Global']
+        
+        if len(score_columns) > 0:
+            # Preparar datos para el lollipop
+            categorias_nombres = [col.replace('Score_', '').replace('_', ' ') for col in score_columns]
+            scores_valores = [jugador_scores[col].iloc[0] for col in score_columns]
+            
+            # Crear figura
+            fig_lollipop, ax_lollipop = plt.subplots(figsize=(12, max(4, len(categorias_nombres) * 0.4)))
+            
+            # Ordenar por score
+            datos_ordenados = sorted(zip(categorias_nombres, scores_valores), key=lambda x: x[1])
+            categorias_ordenadas = [x[0] for x in datos_ordenados]
+            scores_ordenados = [x[1] for x in datos_ordenados]
+            
+            # Crear colormap de rojo a verde
+            cmap_lollipop = mcolors.LinearSegmentedColormap.from_list(
+                'RedGreen', ['#E53935', '#FDD835', '#00A651']
+            )
+            norm_lollipop = mcolors.Normalize(vmin=0, vmax=100)
+            
+            # Crear lollipops
+            for i, (cat, score) in enumerate(zip(categorias_ordenadas, scores_ordenados)):
+                color = cmap_lollipop(norm_lollipop(score))
+                # Línea
+                ax_lollipop.plot([0, score], [i, i], color=color, linewidth=2.5, alpha=0.8)
+                # Círculo
+                ax_lollipop.scatter([score], [i], color=color, s=150, zorder=3, edgecolor='black', linewidth=1.5)
+                # Etiqueta de valor
+                ax_lollipop.text(score + 2, i, f"{score:.1f}", va='center', fontsize=10, fontweight='bold')
+            
+            # Configuración del gráfico
+            ax_lollipop.set_yticks(range(len(categorias_ordenadas)))
+            ax_lollipop.set_yticklabels(categorias_ordenadas, fontsize=11)
+            ax_lollipop.set_xlabel('Score', fontsize=12, fontweight='bold')
+            ax_lollipop.set_xlim(-5, 110)
+            ax_lollipop.set_title(
+                f"Scores por Categoría - {jugador_data['jugador']} (Score Global: {score_global:.1f})",
+                fontsize=13,
+                fontweight='bold',
+                pad=15
+            )
+            ax_lollipop.grid(axis='x', alpha=0.3, linestyle='--')
+            ax_lollipop.axvline(x=50, color='gray', linestyle='--', linewidth=1, alpha=0.5)
+            
+            plt.tight_layout()
+            st.pyplot(fig_lollipop)
+            plt.close()
         
         st.markdown("---")
         
