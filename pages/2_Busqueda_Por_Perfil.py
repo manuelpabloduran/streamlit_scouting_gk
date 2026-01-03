@@ -16,7 +16,7 @@ def calcular_scores(df, diccionario):
     """
     Calcula scores por categoría y global usando percentiles ponderados
     """
-    df_scores = df[['playerId', 'jugador', 'TeamName', 'Competencia', 'Temporada', 'age', 'height', 'weight', 'minutos_totales']].copy()
+    df_scores = df[['jugador', 'TeamName', 'Competencia', 'Temporada', 'age', 'height', 'weight', 'minutos_totales']].copy()
     
     # Filtrar solo jugadores con mínimo 450 minutos
     df_trabajo = df[df['minutos_totales'] >= 450].copy()
