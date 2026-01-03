@@ -70,6 +70,9 @@ variable_color_nombre = st.sidebar.selectbox(
 )
 variable_color = None if variable_color_nombre == "Ninguna" else nombre_map_inverso.get(variable_color_nombre, variable_color_nombre)
 
+# Switch para mostrar nombres en el gráfico
+mostrar_nombres = st.sidebar.checkbox("Mostrar nombres de jugadores en gráfico", value=False)
+
 st.sidebar.markdown("---")
 st.sidebar.header("Filtros")
 
@@ -172,6 +175,7 @@ fig = px.scatter(
     y=variable_y,
     size=variable_size if variable_size else None,
     color=variable_color if variable_color else None,
+    text='jugador' if mostrar_nombres else None,
     hover_name='hover_info',
     hover_data={
         'jugador': True,
@@ -193,12 +197,22 @@ fig = px.scatter(
     height=700
 )
 
-# Personalizar el layout
-fig.update_traces(
-    marker=dict(
-        line=dict(width=0.5, color='DarkSlateGrey'),
-        opacity=0.7
+if mostrar_nombres:
+    fig.update_traces(
+        textposition='top center',
+        textfont=dict(size=8),
+        marker=dict(
+            line=dict(width=0.5, color='DarkSlateGrey'),
+            opacity=0.7
+        )
     )
+else:
+    fig.update_traces(
+        marker=dict(
+            line=dict(width=0.5, color='DarkSlateGrey'),
+            opacity=0.7
+        )
+        )
 )
 
 fig.update_layout(
@@ -250,7 +264,76 @@ rename_dict = {
 
 for col in columnas_mostrar:
     if col in nombre_map and col not in rename_dict:
-        rename_dict[col] = nombre_map[col]
+  Gráficos de barras horizontales
+st.markdown("---")
+st.subheader("Rankings por Variable")
+
+col1, col2 = st.columns(2)
+
+# Gráfico de barras para Variable X
+with col1:
+    st.markdown(f"**Top 20 - {variable_x_nombre}**")
+    
+    # Preparar datos ordenados
+    df_bar_x = df_filtrado[['jugador', variable_x]].copy()
+    df_bar_x = df_bar_x.sort_values(by=variable_x, ascending=True).tail(20)
+    
+    fig_bar_x = px.bar(
+        df_bar_x,
+        x=variable_x,
+        y='jugador',
+        orientation='h',
+        labels={
+            variable_x: variable_x_nombre,
+            'jugador': 'Jugador'
+        },
+        title=f"Top 20 - {variable_x_nombre}",
+        template="plotly_white",
+        height=600,
+        color=variable_x,
+        color_continuous_scale='RdYlGn'
+    )
+    
+    fig_bar_x.update_layout(
+        showlegend=False,
+        yaxis={'categoryorder':'total ascending'}
+    )
+    
+    st.plotly_chart(fig_bar_x, use_container_width=True)
+
+# Gráfico de barras para Variable Y
+with col2:
+    st.markdown(f"**Top 20 - {variable_y_nombre}**")
+    
+    # Preparar datos ordenados
+    df_bar_y = df_filtrado[['jugador', variable_y]].copy()
+    df_bar_y = df_bar_y.sort_values(by=variable_y, ascending=True).tail(20)
+    
+    fig_bar_y = px.bar(
+        df_bar_y,
+        x=variable_y,
+        y='jugador',
+        orientation='h',
+        labels={
+            variable_y: variable_y_nombre,
+            'jugador': 'Jugador'
+        },
+        title=f"Top 20 - {variable_y_nombre}",
+        template="plotly_white",
+        height=600,
+        color=variable_y,
+        color_continuous_scale='RdYlGn'
+    )
+    
+    fig_bar_y.update_layout(
+        showlegend=False,
+        yaxis={'categoryorder':'total ascending'}
+    )
+    
+    st.plotly_chart(fig_bar_y, use_container_width=True)
+
+# Opción de descarga
+st.markdown("---")col] = nombre_map[col]
 
 df_tabla = df_tabla.rename(columns=rename_dict)
 
