@@ -191,10 +191,10 @@ def apply_gradient(df):
     if not df.index.is_unique:
         df = df.reset_index(drop=True)
     
-    # Identificar columnas numéricas (excluyendo las ya formateadas como string de %)
+    # Identificar columnas numéricas (excluyendo las ya formateadas como string)
     numeric_cols = []
     for col in df.columns:
-        if col not in ['Jugador', 'Equipo', 'Competencia', 'Temporada']:
+        if col not in ['Jugador', 'Equipo', 'Competencia', 'Temporada', 'Edad', 'Altura (cm)', 'Peso (kg)']:
             # Buscar la métrica original
             metrica_original = None
             for k, v in rename_dict.items():
@@ -202,26 +202,24 @@ def apply_gradient(df):
                     metrica_original = k
                     break
             
-            # Solo agregar columnas numéricas que no sean porcentajes (ya formateados)
+            # Solo agregar columnas numéricas que no estén ya formateadas como string
             if metrica_original and not metrica_original.startswith('pct_'):
-                if pd.api.types.is_numeric_dtype(df[col]):
-                    numeric_cols.append(col)
+                # Verificar si aún es numérico (antes del formateo a string)
+                try:
+                    # Como ya están formateadas como string, no aplicamos gradiente a estas
+                    # El gradiente solo funciona con valores numéricos
+                    pass
+                except:
+                    pass
     
-    # Aplicar gradiente solo a columnas numéricas
-    if numeric_cols:
-        return df.style.background_gradient(
-            cmap='RdYlGn',
-            subset=numeric_cols,
-            vmin=None,
-            vmax=None
-        )
-    else:
-        return df
+    # Como las columnas están formateadas como string, no podemos aplicar gradiente
+    # Retornar el DataFrame sin estilo
+    return df
 
 # Crear copia para filtrado y aplicar formato
 df_filtered = df_display.copy()
 
-# Formatear las columnas de porcentaje
+# Formatear todas las columnas numéricas a 2 decimales y porcentajes
 for col in df_filtered.columns:
     # Buscar la métrica original
     metrica_original = None
@@ -230,14 +228,66 @@ for col in df_filtered.columns:
             metrica_original = k
             break
     
-    # Si es una columna de porcentaje, formatear
+    # Si es una columna de porcentaje, formatear como porcentaje
     if metrica_original and metrica_original.startswith('pct_'):
         df_filtered[col] = df_filtered[col].apply(
             lambda x: f"{x*100:.2f}%" if pd.notna(x) else ""
         )
+    # Si es una columna numérica (no pct_ y no descriptiva), formatear a 2 decimales
+    elif col not in ['Jugador', 'Equipo', 'Competencia', 'Temporada', 'Edad', 'Altura (cm)', 'Peso (kg)']:
+        if pd.api.types.is_numeric_dtype(df_filtered[col]):
+            df_filtered[col] = df_filtered[col].apply(
+                lambda x: f"{x:.2f}" if pd.notna(x) else ""
+            )
 
-# Aplicar gradiente (solo a columnas numéricas no formateadas)
-styled_df = apply_gradient(df_filtered)
+# Aplicar gradiente (antes del formateo a string para que funcione)
+# Necesitamos aplicar el gradiente ANTES de formatear a strings
+def apply_gradient_and_format(df_display_orig, rename_dict):
+    # Primero aplicar gradiente a columnas numéricas sin formatear
+    df_for_gradient = df_display_orig.copy()
+    
+    # Identificar columnas numéricas para el gradiente
+    numeric_cols = []
+    for col in df_for_gradient.columns:
+        if col not in ['Jugador', 'Equipo', 'Competencia', 'Temporada', 'Edad', 'Altura (cm)', 'Peso (kg)']:
+            metrica_original = None
+            for k, v in rename_dict.items():
+                if v == col:
+                    metrica_original = k
+                    break
+            
+            if metrica_original and not metrica_original.startswith('pct_'):
+                if pd.api.types.is_numeric_dtype(df_for_gradient[col]):
+                    numeric_cols.append(col)
+    
+    # Aplicar el gradiente
+    if numeric_cols:
+        styled = df_for_gradient.style.background_gradient(
+            cmap='RdYlGn',
+            subset=numeric_cols
+        )
+    else:
+        styled = df_for_gradient.style
+    
+    # Ahora aplicar formato de 2 decimales y porcentajes
+    format_dict = {}
+    for col in df_for_gradient.columns:
+        metrica_original = None
+        for k, v in rename_dict.items():
+            if v == col:
+                metrica_original = k
+                break
+        
+        if metrica_original and metrica_original.startswith('pct_'):
+            format_dict[col] = lambda x: f"{x*100:.2f}%" if pd.notna(x) else ""
+        elif col not in ['Jugador', 'Equipo', 'Competencia', 'Temporada']:
+            if pd.api.types.is_numeric_dtype(df_for_gradient[col]):
+                format_dict[col] = "{:.2f}"
+    
+    styled = styled.format(format_dict, na_rep="")
+    return styled
+
+styled_df = apply_gradient_and_format(df_display, rename_dict)
 
 # Mostrar tabla
 st.dataframe(
