@@ -158,6 +158,23 @@ if temporadas_seleccionadas:
 # Mostrar contador de resultados
 st.info(f"📊 Mostrando {len(df_filtrado)} porteros de {len(df)} totales")
 
+# Validar variables de tamaño y color para NaN
+validacion_ok = True
+
+if variable_size:
+    if df_filtrado[variable_size].isna().any():
+        st.warning(f"⚠️ La variable '{variable_size_nombre}' contiene valores vacíos y no puede usarse para el tamaño de burbuja. Por favor selecciona otra variable.")
+        variable_size = None
+        variable_size_nombre = "Ninguna"
+        validacion_ok = False
+
+if variable_color:
+    if df_filtrado[variable_color].isna().any():
+        st.warning(f"⚠️ La variable '{variable_color_nombre}' contiene valores vacíos y no puede usarse para el color de burbuja. Por favor selecciona otra variable.")
+        variable_color = None
+        variable_color_nombre = "Ninguna"
+        validacion_ok = False
+
 # Preparar datos para el gráfico
 df_plot = df_filtrado.copy()
 
@@ -284,8 +301,9 @@ col1, col2 = st.columns(2)
 with col1:
     st.markdown(f"**Top 20 - {variable_x_nombre}**")
     
-    # Preparar datos ordenados
+    # Preparar datos ordenados y eliminar NaN
     df_bar_x = df_filtrado[['jugador', variable_x]].copy()
+    df_bar_x = df_bar_x.dropna(subset=[variable_x])
     df_bar_x = df_bar_x.sort_values(by=variable_x, ascending=True).tail(20)
     
     fig_bar_x = px.bar(
@@ -315,8 +333,9 @@ with col1:
 with col2:
     st.markdown(f"**Top 20 - {variable_y_nombre}**")
     
-    # Preparar datos ordenados
+    # Preparar datos ordenados y eliminar NaN
     df_bar_y = df_filtrado[['jugador', variable_y]].copy()
+    df_bar_y = df_bar_y.dropna(subset=[variable_y])
     df_bar_y = df_bar_y.sort_values(by=variable_y, ascending=True).tail(20)
     
     fig_bar_y = px.bar(
