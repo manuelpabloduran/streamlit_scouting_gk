@@ -135,9 +135,9 @@ st.markdown("""
 Compara porteros usando gráficos de radar. Selecciona jugadores para visualizar sus perfiles y fortalezas.
 """)
 
-# Crear identificador único para cada jugador (jugador - temporada - equipo)
-df_scores['id_jugador'] = df_scores['jugador'] + ' - ' + df_scores['Temporada'].astype(str) + ' - ' + df_scores['TeamName']
-df_percentiles['id_jugador'] = df_percentiles['jugador'] + ' - ' + df_percentiles['Temporada'].astype(str) + ' - ' + df_percentiles['TeamName']
+# Crear identificador único para cada jugador (jugador - temporada - equipo - competencia)
+df_scores['id_jugador'] = df_scores['jugador'] + ' - ' + df_scores['Temporada'].astype(str) + ' - ' + df_scores['TeamName'] + ' - ' + df_scores['Competencia']
+df_percentiles['id_jugador'] = df_percentiles['jugador'] + ' - ' + df_percentiles['Temporada'].astype(str) + ' - ' + df_percentiles['TeamName'] + ' - ' + df_percentiles['Competencia']
 
 # Filtrar jugadores con mínimo 450 minutos para el selector
 df_disponibles = df_scores[df_scores['minutos_totales'] >= 450].copy()
