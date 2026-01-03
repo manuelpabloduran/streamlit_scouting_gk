@@ -212,8 +212,7 @@ else:
             line=dict(width=0.5, color='DarkSlateGrey'),
             opacity=0.7
         )
-        )
-)
+    )
 
 fig.update_layout(
     xaxis_title=variable_x_nombre,
@@ -264,7 +263,18 @@ rename_dict = {
 
 for col in columnas_mostrar:
     if col in nombre_map and col not in rename_dict:
-  Gráficos de barras horizontales
+        rename_dict[col] = nombre_map[col]
+
+df_tabla = df_tabla.rename(columns=rename_dict)
+
+# Formatear columnas numéricas
+for col in df_tabla.columns:
+    if pd.api.types.is_numeric_dtype(df_tabla[col]) and col not in ['Temporada']:
+        df_tabla[col] = df_tabla[col].apply(lambda x: f"{x:.2f}" if pd.notna(x) else "")
+
+st.dataframe(df_tabla, use_container_width=True, height=400, hide_index=True)
+
+# Gráficos de barras horizontales
 st.markdown("---")
 st.subheader("Rankings por Variable")
 
@@ -333,11 +343,7 @@ with col2:
     st.plotly_chart(fig_bar_y, use_container_width=True)
 
 # Opción de descarga
-st.markdown("---")col] = nombre_map[col]
-
-df_tabla = df_tabla.rename(columns=rename_dict)
-
-# Formatear columnas numéricas
+st.markdown("---")
 for col in df_tabla.columns:
     if pd.api.types.is_numeric_dtype(df_tabla[col]) and col not in ['Temporada']:
         df_tabla[col] = df_tabla[col].apply(lambda x: f"{x:.2f}" if pd.notna(x) else "")
