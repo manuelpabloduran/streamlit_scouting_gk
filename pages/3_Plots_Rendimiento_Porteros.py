@@ -210,27 +210,32 @@ fig = px.scatter(
     height=700
 )
 
-# Configurar el tema oscuro y los marcadores
-fig.update_traces(
-    marker=dict(
-        line=dict(width=0.5, color='white'),
-        opacity=0.8
-    )
-)
-
-# Agregar texto si se solicita
+# Configurar marcadores y texto según la opción
 if mostrar_nombres:
     fig.update_traces(
+        mode='markers+text',
         text=df_plot['jugador'],
         textposition='top center',
         textfont=dict(size=9, color='yellow'),
-        mode='markers+text'
+        marker=dict(
+            line=dict(width=0.5, color='white'),
+            opacity=0.8,
+            size=8
+        )
+    )
+else:
+    fig.update_traces(
+        mode='markers',
+        marker=dict(
+            line=dict(width=0.5, color='white'),
+            opacity=0.8
+        )
     )
 
 fig.update_layout(
     xaxis_title=variable_x_nombre,
     yaxis_title=variable_y_nombre,
-    font=dict(size=12),
+    font=dict(size=12, color='white'),
     hovermode='closest',
     template='plotly_dark',
     plot_bgcolor='rgba(0,0,0,0)',
