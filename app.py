@@ -14,7 +14,7 @@ try:
 except:
     pass
 
-# CSS para centrar el logo
+# CSS para centrar y agrandar el logo
 st.markdown("""
 <style>
     [data-testid="stSidebarNav"] {
@@ -22,6 +22,15 @@ st.markdown("""
     }
     [data-testid="stSidebarUserContent"] {
         padding-top: 1rem;
+    }
+    /* Agrandar el logo */
+    [data-testid="stLogo"] {
+        width: 180px !important;
+        height: auto !important;
+    }
+    [data-testid="stLogo"] img {
+        width: 180px !important;
+        height: auto !important;
     }
 </style>
 """, unsafe_allow_html=True)
