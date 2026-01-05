@@ -217,17 +217,17 @@ fig = px.scatter(
 if mostrar_nombres:
     fig.update_traces(
         textposition='top center',
-        textfont=dict(size=8, color='white'),
+        textfont=dict(size=9, color='yellow'),
         marker=dict(
-            line=dict(width=0.5, color='DarkSlateGrey'),
-            opacity=0.7
+            line=dict(width=0.5, color='white'),
+            opacity=0.8
         )
     )
 else:
     fig.update_traces(
         marker=dict(
-            line=dict(width=0.5, color='DarkSlateGrey'),
-            opacity=0.7
+            line=dict(width=0.5, color='white'),
+            opacity=0.8
         )
     )
 
@@ -303,7 +303,7 @@ with col1:
     # Preparar datos ordenados y eliminar NaN
     # Crear identificador único
     df_bar_x = df_filtrado[['jugador', 'Temporada', 'TeamName', 'Competencia', variable_x]].copy()
-    df_bar_x['id_jugador'] = df_bar_x['jugador'] + ' - ' + df_bar_x['Temporada'].astype(str) + ' - ' + df_bar_x['TeamName'] + ' - ' + df_bar_x['Competencia']
+    df_bar_x['id_jugador'] = df_bar_x['jugador'] + ' - ' + df_bar_x['Temporada'].astype(str) + ' - ' + df_bar_x['TeamName']
     df_bar_x = df_bar_x.dropna(subset=[variable_x])
     df_bar_x = df_bar_x.sort_values(by=variable_x, ascending=True).tail(20)
     
@@ -337,7 +337,7 @@ with col2:
     # Preparar datos ordenados y eliminar NaN
     # Crear identificador único
     df_bar_y = df_filtrado[['jugador', 'Temporada', 'TeamName', 'Competencia', variable_y]].copy()
-    df_bar_y['id_jugador'] = df_bar_y['jugador'] + ' - ' + df_bar_y['Temporada'].astype(str) + ' - ' + df_bar_y['TeamName'] + ' - ' + df_bar_y['Competencia']
+    df_bar_y['id_jugador'] = df_bar_y['jugador'] + ' - ' + df_bar_y['Temporada'].astype(str) + ' - ' + df_bar_y['TeamName']
     df_bar_y = df_bar_y.dropna(subset=[variable_y])
     df_bar_y = df_bar_y.sort_values(by=variable_y, ascending=True).tail(20)
     
