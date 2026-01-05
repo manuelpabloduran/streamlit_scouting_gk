@@ -11,7 +11,7 @@ st.set_page_config(
 # Logo en sidebar
 try:
     logo = Image.open("real_racing_club.png")
-    st.sidebar.image(logo, use_container_width=True)
+    st.sidebar.image(logo, width=150)
     st.sidebar.markdown("---")
 except:
     pass
