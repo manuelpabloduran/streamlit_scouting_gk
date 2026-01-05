@@ -8,13 +8,23 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Logo en sidebar
+# Logo en sidebar - usando st.logo para que aparezca arriba de todo
 try:
-    logo = Image.open("real_racing_club.png")
-    st.sidebar.image(logo, width=150)
-    st.sidebar.markdown("---")
+    st.logo("real_racing_club.png")
 except:
     pass
+
+# CSS para centrar el logo
+st.markdown("""
+<style>
+    [data-testid="stSidebarNav"] {
+        padding-top: 0rem;
+    }
+    [data-testid="stSidebarUserContent"] {
+        padding-top: 1rem;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Imagen de estadio a lo ancho
 try:
