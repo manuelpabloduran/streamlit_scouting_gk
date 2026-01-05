@@ -25,11 +25,11 @@ st.markdown("""
     }
     /* Agrandar el logo */
     [data-testid="stLogo"] {
-        width: 180px !important;
+        width: 500px !important;
         height: auto !important;
     }
     [data-testid="stLogo"] img {
-        width: 180px !important;
+        width: 500px !important;
         height: auto !important;
     }
 </style>
