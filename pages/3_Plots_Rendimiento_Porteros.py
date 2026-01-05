@@ -239,7 +239,7 @@ if variable_color:
     )
 
 # Mostrar el gráfico
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width='stretch')
 
 # Tabla resumen debajo del gráfico
 st.markdown("---")
@@ -280,7 +280,7 @@ for col in df_tabla.columns:
     if pd.api.types.is_numeric_dtype(df_tabla[col]) and col not in ['Temporada']:
         df_tabla[col] = df_tabla[col].apply(lambda x: f"{x:.2f}" if pd.notna(x) else "")
 
-st.dataframe(df_tabla, use_container_width=True, height=400, hide_index=True)
+st.dataframe(df_tabla, width='stretch', height=400, hide_index=True)
 
 # Gráficos de barras horizontales
 st.markdown("---")
@@ -320,7 +320,7 @@ with col1:
         yaxis={'categoryorder':'total ascending'}
     )
     
-    st.plotly_chart(fig_bar_x, use_container_width=True)
+    st.plotly_chart(fig_bar_x, width='stretch')
 
 # Gráfico de barras para Variable Y
 with col2:
@@ -354,7 +354,7 @@ with col2:
         yaxis={'categoryorder':'total ascending'}
     )
     
-    st.plotly_chart(fig_bar_y, use_container_width=True)
+    st.plotly_chart(fig_bar_y, width='stretch')
 
 # Opción de descarga
 st.markdown("---")
@@ -362,7 +362,7 @@ for col in df_tabla.columns:
     if pd.api.types.is_numeric_dtype(df_tabla[col]) and col not in ['Temporada']:
         df_tabla[col] = df_tabla[col].apply(lambda x: f"{x:.2f}" if pd.notna(x) else "")
 
-st.dataframe(df_tabla, use_container_width=True, height=400, hide_index=True)
+st.dataframe(df_tabla, width='stretch', height=400, hide_index=True)
 
 # Opción de descarga
 csv = df_filtrado.to_csv(index=False).encode('utf-8')
