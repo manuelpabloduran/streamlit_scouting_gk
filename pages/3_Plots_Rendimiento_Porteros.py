@@ -192,6 +192,7 @@ fig = px.scatter(
     y=variable_y,
     size=variable_size if variable_size else None,
     color=variable_color if variable_color else None,
+    color_continuous_scale='Plasma' if variable_color else None,
     text='jugador' if mostrar_nombres else None,
     hover_name='hover_info',
     hover_data={
