@@ -288,7 +288,10 @@ df_tabla = df_tabla.rename(columns=rename_dict)
 # Formatear columnas numéricas
 for col in df_tabla.columns:
     if pd.api.types.is_numeric_dtype(df_tabla[col]) and col not in ['Temporada']:
-        df_tabla[col] = df_tabla[col].apply(lambda x: f"{x:.2f}" if pd.notna(x) else "")
+        if col in ['Edad', 'Altura (cm)', 'Peso (kg)']:
+            df_tabla[col] = df_tabla[col].apply(lambda x: f"{int(x)}" if pd.notna(x) else "")
+        else:
+            df_tabla[col] = df_tabla[col].apply(lambda x: f"{x:.2f}" if pd.notna(x) else "")
 
 st.dataframe(df_tabla, width='stretch', height=400, hide_index=True)
 
@@ -370,7 +373,10 @@ with col2:
 st.markdown("---")
 for col in df_tabla.columns:
     if pd.api.types.is_numeric_dtype(df_tabla[col]) and col not in ['Temporada']:
-        df_tabla[col] = df_tabla[col].apply(lambda x: f"{x:.2f}" if pd.notna(x) else "")
+        if col in ['Edad', 'Altura (cm)', 'Peso (kg)']:
+            df_tabla[col] = df_tabla[col].apply(lambda x: f"{int(x)}" if pd.notna(x) else "")
+        else:
+            df_tabla[col] = df_tabla[col].apply(lambda x: f"{x:.2f}" if pd.notna(x) else "")
 
 st.dataframe(df_tabla, width='stretch', height=400, hide_index=True)
 

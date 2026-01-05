@@ -291,6 +291,11 @@ def apply_gradient_and_format_scores(df_display_orig, rename_dict):
     styled = styled.format(format_dict, na_rep="")
     return styled
 
+# Formatear edad, peso y altura como enteros
+for col in ['age', 'height', 'weight']:
+    if col in df_display.columns:
+        df_display[col] = df_display[col].apply(lambda x: int(x) if pd.notna(x) else x)
+
 styled_df = apply_gradient_and_format_scores(df_display, rename_dict)
 
 # Mostrar tabla

@@ -322,6 +322,8 @@ else:
         if pd.api.types.is_numeric_dtype(df_tabla[col]) and col not in ['Temporada']:
             if 'Score' in col:
                 df_tabla[col] = df_tabla[col].apply(lambda x: f"{x:.1f}" if pd.notna(x) else "")
+            elif col in ['Edad', 'Altura (cm)', 'Peso (kg)']:
+                df_tabla[col] = df_tabla[col].apply(lambda x: f"{int(x)}" if pd.notna(x) else "")
             else:
                 df_tabla[col] = df_tabla[col].apply(lambda x: f"{x:.0f}" if pd.notna(x) else "")
     
