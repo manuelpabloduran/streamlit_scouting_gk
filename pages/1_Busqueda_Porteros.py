@@ -44,7 +44,7 @@ else:
     metricas_disponibles = [col for col in diccionario['metrica'].tolist() if col in df.columns]
 
 # Filtro de minutos totales
-min_minutos = 450
+min_minutos = 0
 max_minutos = int(df['minutos_totales'].max())
 minutos_range = st.sidebar.slider(
     "Minutos Totales Jugados",
@@ -122,8 +122,17 @@ if competencias_seleccionadas:
 if temporadas_seleccionadas:
     df_filtrado = df_filtrado[df_filtrado['Temporada'].isin(temporadas_seleccionadas)]
 
+# Guardar cantidad total filtrada
+total_filtrados = len(df_filtrado)
+
+# Limitar a top 500 para rendimiento
+df_filtrado = df_filtrado.head(500)
+
 # Mostrar contador de resultados
-st.info(f"📊 Mostrando {len(df_filtrado)} porteros de {len(df)} totales")
+if total_filtrados > 500:
+    st.info(f"📊 Mostrando los primeros 500 porteros de {total_filtrados} que cumplen los filtros")
+else:
+    st.info(f"📊 Mostrando {total_filtrados} porteros de {len(df)} totales")
 # Preparar dataframe para mostrar
 columnas_a_mostrar = columnas_base + metricas_disponibles
 df_display = df_filtrado[columnas_a_mostrar].copy()
