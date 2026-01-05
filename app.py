@@ -8,36 +8,11 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Logo en sidebar - usando st.logo para que aparezca arriba de todo
+# Logo en sidebar - usando st.sidebar.image para mayor control de tamaño
 try:
-    st.logo("real_racing_club.png")
+    st.sidebar.image("real_racing_club.png", width=350)
 except:
     pass
-
-# CSS para centrar y agrandar el logo
-st.markdown("""
-<style>
-    [data-testid="stSidebarNav"] {
-        padding-top: 0rem;
-    }
-    [data-testid="stSidebarUserContent"] {
-        padding-top: 1rem;
-    }
-    /* Agrandar el logo al máximo del sidebar */
-    [data-testid="stLogo"] {
-        width: 100% !important;
-        max-width: 280px !important;
-        height: auto !important;
-        margin: 0 auto !important;
-        display: block !important;
-    }
-    [data-testid="stLogo"] img {
-        width: 100% !important;
-        max-width: 280px !important;
-        height: auto !important;
-    }
-</style>
-""", unsafe_allow_html=True)
 
 # Imagen de estadio a lo ancho
 try:
