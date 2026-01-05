@@ -214,7 +214,7 @@ fig.update_traces(
     textposition='top center',
     textfont=dict(size=9, color='yellow'),
     marker=dict(
-        line=dict(width=0.5, color='white'),
+        line=dict(width=0.5, color='DarkSlateGrey'),
         opacity=0.8
     ),
     selector=dict(type="scatter")
@@ -223,11 +223,8 @@ fig.update_traces(
 fig.update_layout(
     xaxis_title=variable_x_nombre,
     yaxis_title=variable_y_nombre,
-    font=dict(size=12, color='white'),
-    hovermode='closest',
-    template='plotly_dark',
-    plot_bgcolor='rgba(0,0,0,0)',
-    paper_bgcolor='rgba(0,0,0,0)'
+    font=dict(size=12),
+    hovermode='closest'
 )
 
 # Agregar nombres de colores si hay variable de color
