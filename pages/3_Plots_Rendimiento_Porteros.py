@@ -70,6 +70,9 @@ variable_color_nombre = st.sidebar.selectbox(
 )
 variable_color = None if variable_color_nombre == "Ninguna" else nombre_map_inverso.get(variable_color_nombre, variable_color_nombre)
 
+# Switch para mostrar nombres en el gráfico
+mostrar_nombres = st.sidebar.checkbox("Mostrar nombres de jugadores en gráfico", value=False)
+
 st.sidebar.markdown("---")
 st.sidebar.header("Filtros")
 
@@ -189,7 +192,7 @@ fig = px.scatter(
     y=variable_y,
     size=variable_size if variable_size else None,
     color=variable_color if variable_color else None,
-    text='jugador',
+    text='jugador' if mostrar_nombres else None,
     hover_name='hover_info',
     hover_data={
         'jugador': True,
@@ -209,16 +212,25 @@ fig = px.scatter(
 )
 
 # Configurar marcadores y texto
-fig.update_traces(
-    mode="markers+text",
-    textposition='top center',
-    textfont=dict(size=9, color='yellow'),
-    marker=dict(
-        line=dict(width=0.5, color='DarkSlateGrey'),
-        opacity=0.8
-    ),
-    selector=dict(type="scatter")
-)
+if mostrar_nombres:
+    fig.update_traces(
+        mode="markers+text",
+        textposition='top center',
+        textfont=dict(size=9, color='white'),
+        marker=dict(
+            line=dict(width=0.5, color='DarkSlateGrey'),
+            opacity=0.8
+        ),
+        selector=dict(type="scatter")
+    )
+else:
+    fig.update_traces(
+        marker=dict(
+            line=dict(width=0.5, color='DarkSlateGrey'),
+            opacity=0.8
+        ),
+        selector=dict(type="scatter")
+    )
 
 fig.update_layout(
     xaxis_title=variable_x_nombre,
@@ -308,8 +320,7 @@ with col1:
         title=f"Top 20 - {variable_x_nombre}",
         template="plotly_dark",
         height=600,
-        color=variable_x,
-        color_continuous_scale='RdYlGn'
+        color=variable_x
     )
     
     fig_bar_x.update_layout(
@@ -342,8 +353,7 @@ with col2:
         title=f"Top 20 - {variable_y_nombre}",
         template="plotly_dark",
         height=600,
-        color=variable_y,
-        color_continuous_scale='RdYlGn'
+        color=variable_y
     )
     
     fig_bar_y.update_layout(
