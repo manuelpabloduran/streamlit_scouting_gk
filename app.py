@@ -1,15 +1,15 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Scouting Porteros",
+    page_title="RRC - Scouting Porteros",
     page_icon="🧤",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-st.title("🧤 Sistema de Scouting de Porteros")
+st.title("🧤 Sistema de Scouting de Porteros - Real Racing Club")
 st.markdown("""
-### Bienvenido al Sistema de Análisis y Scouting de Porteros
+### Bienvenido al Sistema de Análisis y Scouting de Porteros del Real Racing Club
 
 Utiliza el menú lateral para navegar entre las diferentes secciones:
 
