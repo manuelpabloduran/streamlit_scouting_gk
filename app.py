@@ -23,13 +23,17 @@ st.markdown("""
     [data-testid="stSidebarUserContent"] {
         padding-top: 1rem;
     }
-    /* Agrandar el logo */
+    /* Agrandar el logo al máximo del sidebar */
     [data-testid="stLogo"] {
-        width: 500px !important;
+        width: 100% !important;
+        max-width: 280px !important;
         height: auto !important;
+        margin: 0 auto !important;
+        display: block !important;
     }
     [data-testid="stLogo"] img {
-        width: 500px !important;
+        width: 100% !important;
+        max-width: 280px !important;
         height: auto !important;
     }
 </style>
