@@ -216,6 +216,7 @@ fig = px.scatter(
 
 if mostrar_nombres:
     fig.update_traces(
+        mode='markers+text',
         textposition='top center',
         textfont=dict(size=9, color='yellow'),
         marker=dict(
@@ -225,6 +226,7 @@ if mostrar_nombres:
     )
 else:
     fig.update_traces(
+        mode='markers',
         marker=dict(
             line=dict(width=0.5, color='white'),
             opacity=0.8
