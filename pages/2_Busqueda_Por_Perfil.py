@@ -318,19 +318,24 @@ st.markdown("A continuación se detallan las métricas que componen cada perfil/
 # Agrupar métricas por categoría
 categorias_info = diccionario[diccionario['categoria'].notna()].groupby('categoria')['nombre_limpio'].apply(list).to_dict()
 
+# Filtrar categorías (excluir "Otras" si existe)
+categorias_mostrar = {k: v for k, v in categorias_info.items() if k.lower() != 'otras'}
+
 # Mostrar en columnas para mejor visualización
-num_categorias = len([cat for cat in categorias_info.keys() if cat.lower() != 'otras'])
 cols_per_row = 2
+categorias_list = list(categorias_mostrar.keys())
+num_categorias = len(categorias_list)
 num_rows = (num_categorias + cols_per_row - 1) // cols_per_row
 
 for i in range(num_rows):
     cols = st.columns(cols_per_row)
-    categorias_en_fila = list(categorias_info.keys())[i*cols_per_row:(i+1)*cols_per_row]
     
-    for j, categoria in enumerate(categorias_en_fila):
-        if categoria.lower() != 'otras':
+    for j in range(cols_per_row):
+        idx = i * cols_per_row + j
+        if idx < num_categorias:
+            categoria = categorias_list[idx]
             with cols[j]:
                 st.markdown(f"**{categoria}**")
-                metricas = categorias_info[categoria]
+                metricas = categorias_mostrar[categoria]
                 for metrica in metricas:
                     st.markdown(f"- {metrica}")

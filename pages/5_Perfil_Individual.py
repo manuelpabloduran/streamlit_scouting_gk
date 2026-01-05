@@ -301,6 +301,102 @@ else:
         
         st.markdown("---")
         
+        # GRÁFICO DE TOP 10 VARIABLES DESTACADAS
+        st.subheader("⭐ Top 10 Variables Destacadas")
+        
+        # Calcular percentiles para todas las variables en la competencia-temporada del jugador
+        competencia_temporada_jugador = jugador_data['Competencia']
+        temporada_jugador = jugador_data['Temporada']
+        df_contexto = df_pool[(df_pool['Competencia'] == competencia_temporada_jugador) & 
+                              (df_pool['Temporada'] == temporada_jugador)].copy()
+        
+        if len(df_contexto) > 1:
+            # Obtener todas las métricas numéricas
+            metricas_todas = diccionario[diccionario['metrica'].isin(df_contexto.columns)]['metrica'].tolist()
+            
+            # Crear diccionario de percentiles
+            percentiles_dict = {}
+            
+            for metrica in metricas_todas:
+                if metrica in df_contexto.columns and pd.api.types.is_numeric_dtype(df_contexto[metrica]):
+                    # Obtener info de la métrica
+                    var_info = diccionario[diccionario['metrica'] == metrica]
+                    if len(var_info) == 0:
+                        continue
+                    
+                    var_info = var_info.iloc[0]
+                    invertir = var_info['Invertir'] if pd.notna(var_info['Invertir']) else False
+                    nombre_bonito = nombre_map.get(metrica, metrica)
+                    
+                    # Obtener valor del jugador
+                    valor_jugador = jugador_data[metrica]
+                    
+                    if pd.notna(valor_jugador):
+                        # Calcular percentil
+                        valores = df_contexto[metrica].copy()
+                        if invertir:
+                            valores = -valores
+                            valor_jugador_calc = -valor_jugador
+                        else:
+                            valor_jugador_calc = valor_jugador
+                        
+                        # Calcular percentil
+                        percentil = (valores < valor_jugador_calc).sum() / len(valores.dropna()) * 100
+                        
+                        percentiles_dict[nombre_bonito] = percentil
+            
+            # Obtener top 10
+            if len(percentiles_dict) > 0:
+                top_10 = sorted(percentiles_dict.items(), key=lambda x: x[1], reverse=True)[:10]
+                
+                if len(top_10) > 0:
+                    import plotly.graph_objects as go
+                    
+                    variables_top = [x[0] for x in top_10]
+                    percentiles_top = [x[1] for x in top_10]
+                    
+                    # Invertir orden para que el mejor esté arriba
+                    variables_top = variables_top[::-1]
+                    percentiles_top = percentiles_top[::-1]
+                    
+                    fig_top10 = go.Figure()
+                    
+                    fig_top10.add_trace(go.Bar(
+                        y=variables_top,
+                        x=percentiles_top,
+                        orientation='h',
+                        marker=dict(
+                            color=percentiles_top,
+                            colorscale='Plasma',
+                            showscale=True,
+                            colorbar=dict(title="Percentil")
+                        ),
+                        text=[f"{p:.1f}%" for p in percentiles_top],
+                        textposition='outside',
+                        hovertemplate='<b>%{y}</b><br>Percentil: %{x:.1f}%<extra></extra>'
+                    ))
+                    
+                    fig_top10.update_layout(
+                        title=f"Top 10 Variables - {jugador_data['jugador']} en {competencia_temporada_jugador} {temporada_jugador}",
+                        xaxis_title="Percentil (%)",
+                        yaxis_title="",
+                        height=400,
+                        template='plotly_white',
+                        showlegend=False,
+                        xaxis=dict(range=[0, 105])
+                    )
+                    
+                    st.plotly_chart(fig_top10, width='stretch')
+                    st.caption(f"📊 Contexto: {len(df_contexto)} porteros en {competencia_temporada_jugador} {temporada_jugador}")
+                else:
+                    st.info("No hay suficientes datos para mostrar variables destacadas.")
+            else:
+                st.info("No hay suficientes datos para mostrar variables destacadas.")
+        else:
+            st.info(f"No hay suficientes porteros en {competencia_temporada_jugador} {temporada_jugador} para comparar.")
+        
+        st.markdown("---")
+        
         # Obtener categorías (excluyendo 'Otras')
         categorias = [cat for cat in diccionario['categoria'].dropna().unique() if cat.lower() != 'otras']
         
