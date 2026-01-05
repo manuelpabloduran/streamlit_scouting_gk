@@ -142,8 +142,8 @@ if 'age' in df_scores.columns:
 
 # Filtro de altura
 if 'height' in df_scores.columns:
-    min_altura = int(df_scores['height'].min())
-    max_altura = int(df_scores['height'].max())
+    min_altura = int(df_scores['height'].dropna().min())
+    max_altura = int(df_scores['height'].dropna().max())
     altura_range = st.sidebar.slider(
         "Altura (cm)",
         min_value=min_altura,
@@ -209,12 +209,21 @@ if 'age' in df_filtrado.columns:
         (df_filtrado['age'] <= edad_range[1])
     ]
 
-# Filtro de altura
+# Filtro de altura (incluir nulos si no se modificó el rango)
 if 'height' in df_filtrado.columns:
-    df_filtrado = df_filtrado[
-        (df_filtrado['height'] >= altura_range[0]) & 
-        (df_filtrado['height'] <= altura_range[1])
-    ]
+    # Si el rango es el completo, incluir nulos
+    if altura_range[0] == min_altura and altura_range[1] == max_altura:
+        df_filtrado = df_filtrado[
+            (df_filtrado['height'].isna()) |
+            ((df_filtrado['height'] >= altura_range[0]) & 
+             (df_filtrado['height'] <= altura_range[1]))
+        ]
+    else:
+        # Si se modificó el rango, solo filtrar los que tienen altura
+        df_filtrado = df_filtrado[
+            (df_filtrado['height'] >= altura_range[0]) & 
+            (df_filtrado['height'] <= altura_range[1])
+        ]
 
 # Filtro de competencias
 if competencias_seleccionadas:
@@ -291,8 +300,8 @@ def apply_gradient_and_format_scores(df_display_orig, rename_dict):
     styled = styled.format(format_dict, na_rep="")
     return styled
 
-# Formatear edad, peso y altura como enteros
-for col in ['age', 'height', 'weight']:
+# Formatear edad, peso y altura como enteros antes de renombrar
+for col in ['Edad', 'Altura (cm)', 'Peso (kg)']:
     if col in df_display.columns:
         df_display[col] = df_display[col].apply(lambda x: int(x) if pd.notna(x) else x)
 
