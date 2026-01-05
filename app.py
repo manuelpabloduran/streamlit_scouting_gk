@@ -10,7 +10,7 @@ st.set_page_config(
 
 # Logo en sidebar - usando st.sidebar.image para mayor control de tamaño
 try:
-    st.sidebar.image("real_racing_club.png", width=350)
+    st.sidebar.image("real_racing_club.png", width=150)
 except:
     pass
 
