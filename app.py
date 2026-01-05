@@ -1,4 +1,5 @@
 import streamlit as st
+from PIL import Image
 
 st.set_page_config(
     page_title="RRC - Scouting Porteros",
@@ -6,6 +7,21 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Logo en sidebar
+try:
+    logo = Image.open("real_racing_club.png")
+    st.sidebar.image(logo, use_container_width=True)
+    st.sidebar.markdown("---")
+except:
+    pass
+
+# Imagen de estadio a lo ancho
+try:
+    estadio = Image.open("estadio_rrc.jpeg")
+    st.image(estadio, use_container_width=True)
+except:
+    pass
 
 st.title("🧤 Sistema de Scouting de Porteros - Real Racing Club")
 st.markdown("""
