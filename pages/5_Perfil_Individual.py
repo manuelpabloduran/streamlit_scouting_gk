@@ -304,21 +304,43 @@ else:
         # GRÁFICO DE TOP 10 VARIABLES DESTACADAS
         st.subheader("⭐ Top 10 Variables Destacadas")
         
-        # Calcular percentiles para todas las variables en la competencia-temporada del jugador
+        # Lista de variables a considerar para el ranking
+        variables_ranking = [
+            'paradas_totales', 'xg_paradas', 'xgot_paradas', 'xGoT_Tiro', 'pct_paradas',
+            'paradas_area_pequena', 'xg_paradas_area_pequena', 'xgot_paradas_area_pequena',
+            'paradas_fuera_area_pequena', 'xg_paradas_fuera_area_pequena', 'xgot_paradas_fuera_area_pequena',
+            'saves_medium_intervention', 'saves_high_intervention', 'saves_parriedsafe', 'pct_rechace_seguro',
+            'saves_collected', 'smother_totales', 'goles_evitados', 'penaltis_parados',
+            'pases_exitosos', 'pases_longball_exitosos', 'pct_pases_largos_exitosos',
+            'pases_cortos_exitosos', 'pct_pases_cortos_exitosos', 'pases_fuera_area',
+            'pases_primer_tercio_exitosos', 'pct_exito_pases_primer_tercio',
+            'pases_segundo_tercio_exitosos', 'pct_exito_pases_segundo_tercio',
+            'pases_tercer_tercio_exitosos', 'pct_exito_pases_tercer_tercio',
+            'xt_acumulado', 'xa_acumulado', 'altura_promedio_pases_fuera_area',
+            'indice_construccion_fuera_de_area', 'duelos_aereos', 'claims_exitosos', 'pct_exito_claim',
+            'claims_fuera_area_pequena', 'claims_exitosos_fuera_area', 'pct_exito_claim_fuera_area',
+            'punch', 'acciones_centros', 'acciones_centros_fuera_area', 'centros_exitosos_sufridos',
+            'pct_blocaje', 'keeper_sweeper', 'interception', 'tackle', 'clearance',
+            'acciones_defensivas_saliendo', 'acciones_defensivas_fuera_area', 'acciones_defensivas_totales',
+            'altura_promedio_acciones_defensivas_fuera_area', 'indice_agresividad_fuera_area',
+            'distancia_media_longball', 'keeperthrow_exitosos', 'distancia_media_saque_con_mano'
+        ]
+        
+        # Calcular percentiles para las variables especificadas en la competencia-temporada del jugador
         competencia_temporada_jugador = jugador_data['Competencia']
         temporada_jugador = jugador_data['Temporada']
         df_contexto = df_pool[(df_pool['Competencia'] == competencia_temporada_jugador) & 
                               (df_pool['Temporada'] == temporada_jugador)].copy()
         
         if len(df_contexto) > 1:
-            # Obtener todas las métricas numéricas
-            metricas_todas = diccionario[diccionario['metrica'].isin(df_contexto.columns)]['metrica'].tolist()
+            # Filtrar solo las métricas de la lista que existen en el dataframe
+            metricas_disponibles = [m for m in variables_ranking if m in df_contexto.columns]
             
             # Crear diccionario de percentiles
             percentiles_dict = {}
             
-            for metrica in metricas_todas:
-                if metrica in df_contexto.columns and pd.api.types.is_numeric_dtype(df_contexto[metrica]):
+            for metrica in metricas_disponibles:
+                if pd.api.types.is_numeric_dtype(df_contexto[metrica]):
                     # Obtener info de la métrica
                     var_info = diccionario[diccionario['metrica'] == metrica]
                     if len(var_info) == 0:
