@@ -125,12 +125,16 @@ if temporadas_seleccionadas:
 # Guardar cantidad total filtrada
 total_filtrados = len(df_filtrado)
 
+# Ordenar por Goles Evitados de mayor a menor
+if 'goles_evitados' in df_filtrado.columns:
+    df_filtrado = df_filtrado.sort_values(by='goles_evitados', ascending=False)
+
 # Limitar a top 500 para rendimiento
 df_filtrado = df_filtrado.head(500)
 
 # Mostrar contador de resultados
 if total_filtrados > 500:
-    st.info(f"📊 Mostrando los primeros 500 porteros de {total_filtrados} que cumplen los filtros")
+    st.info(f"📊 Mostrando el Top 500 de {total_filtrados} porteros que cumplen los filtros (ordenado por Goles Evitados)")
 else:
     st.info(f"📊 Mostrando {total_filtrados} porteros de {len(df)} totales")
 # Preparar dataframe para mostrar
