@@ -309,3 +309,28 @@ st.download_button(
     file_name="porteros_scores_filtrados.csv",
     mime="text/csv"
 )
+
+# Sección de ayuda: Variables por categoría
+st.markdown("---")
+st.markdown("### 📋 Variables por Categoría")
+st.markdown("A continuación se detallan las métricas que componen cada perfil/categoría:")
+
+# Agrupar métricas por categoría
+categorias_info = diccionario[diccionario['categoria'].notna()].groupby('categoria')['nombre_limpio'].apply(list).to_dict()
+
+# Mostrar en columnas para mejor visualización
+num_categorias = len([cat for cat in categorias_info.keys() if cat.lower() != 'otras'])
+cols_per_row = 2
+num_rows = (num_categorias + cols_per_row - 1) // cols_per_row
+
+for i in range(num_rows):
+    cols = st.columns(cols_per_row)
+    categorias_en_fila = list(categorias_info.keys())[i*cols_per_row:(i+1)*cols_per_row]
+    
+    for j, categoria in enumerate(categorias_en_fila):
+        if categoria.lower() != 'otras':
+            with cols[j]:
+                st.markdown(f"**{categoria}**")
+                metricas = categorias_info[categoria]
+                for metrica in metricas:
+                    st.markdown(f"- {metrica}")
