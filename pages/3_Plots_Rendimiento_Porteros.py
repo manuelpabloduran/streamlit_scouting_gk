@@ -70,9 +70,6 @@ variable_color_nombre = st.sidebar.selectbox(
 )
 variable_color = None if variable_color_nombre == "Ninguna" else nombre_map_inverso.get(variable_color_nombre, variable_color_nombre)
 
-# Switch para mostrar nombres en el gráfico
-mostrar_nombres = st.sidebar.checkbox("Mostrar nombres de jugadores en gráfico", value=False)
-
 st.sidebar.markdown("---")
 st.sidebar.header("Filtros")
 
@@ -192,6 +189,7 @@ fig = px.scatter(
     y=variable_y,
     size=variable_size if variable_size else None,
     color=variable_color if variable_color else None,
+    text='jugador',
     hover_name='hover_info',
     hover_data={
         'jugador': True,
@@ -210,27 +208,15 @@ fig = px.scatter(
     height=700
 )
 
-# Configurar marcadores y texto según la opción
-if mostrar_nombres:
-    fig.update_traces(
-        mode='markers+text',
-        text=df_plot['jugador'],
-        textposition='top center',
-        textfont=dict(size=9, color='yellow'),
-        marker=dict(
-            line=dict(width=0.5, color='white'),
-            opacity=0.8,
-            size=8
-        )
+# Configurar marcadores y texto
+fig.update_traces(
+    textposition='top center',
+    textfont=dict(size=9, color='yellow'),
+    marker=dict(
+        line=dict(width=0.5, color='white'),
+        opacity=0.8
     )
-else:
-    fig.update_traces(
-        mode='markers',
-        marker=dict(
-            line=dict(width=0.5, color='white'),
-            opacity=0.8
-        )
-    )
+)
 
 fig.update_layout(
     xaxis_title=variable_x_nombre,
