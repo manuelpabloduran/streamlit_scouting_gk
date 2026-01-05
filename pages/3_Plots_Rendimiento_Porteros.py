@@ -192,15 +192,12 @@ fig = px.scatter(
     y=variable_y,
     size=variable_size if variable_size else None,
     color=variable_color if variable_color else None,
-    text='jugador' if mostrar_nombres else None,
     hover_name='hover_info',
     hover_data={
         'jugador': True,
         'TeamName': True,
         'Competencia': True,
         'Temporada': True,
-        variable_x: ':.2f',
-        variable_y: ':.2f',
         'hover_info': False
     },
     labels={
@@ -210,34 +207,34 @@ fig = px.scatter(
         variable_color: variable_color_nombre if variable_color else None
     },
     title=f"{variable_y_nombre} vs {variable_x_nombre}",
-    template="plotly_dark",
     height=700
 )
 
+# Configurar el tema oscuro y los marcadores
+fig.update_traces(
+    marker=dict(
+        line=dict(width=0.5, color='white'),
+        opacity=0.8
+    )
+)
+
+# Agregar texto si se solicita
 if mostrar_nombres:
     fig.update_traces(
-        mode='markers+text',
+        text=df_plot['jugador'],
         textposition='top center',
         textfont=dict(size=9, color='yellow'),
-        marker=dict(
-            line=dict(width=0.5, color='white'),
-            opacity=0.8
-        )
-    )
-else:
-    fig.update_traces(
-        mode='markers',
-        marker=dict(
-            line=dict(width=0.5, color='white'),
-            opacity=0.8
-        )
+        mode='markers+text'
     )
 
 fig.update_layout(
     xaxis_title=variable_x_nombre,
     yaxis_title=variable_y_nombre,
     font=dict(size=12),
-    hovermode='closest'
+    hovermode='closest',
+    template='plotly_dark',
+    plot_bgcolor='rgba(0,0,0,0)',
+    paper_bgcolor='rgba(0,0,0,0)'
 )
 
 # Agregar nombres de colores si hay variable de color
