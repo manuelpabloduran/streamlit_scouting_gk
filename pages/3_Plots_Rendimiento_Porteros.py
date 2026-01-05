@@ -210,12 +210,14 @@ fig = px.scatter(
 
 # Configurar marcadores y texto
 fig.update_traces(
+    mode="markers+text",
     textposition='top center',
     textfont=dict(size=9, color='yellow'),
     marker=dict(
         line=dict(width=0.5, color='white'),
         opacity=0.8
-    )
+    ),
+    selector=dict(type="scatter")
 )
 
 fig.update_layout(
