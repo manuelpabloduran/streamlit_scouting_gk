@@ -210,14 +210,14 @@ fig = px.scatter(
         variable_color: variable_color_nombre if variable_color else None
     },
     title=f"{variable_y_nombre} vs {variable_x_nombre}",
-    template="plotly_white",
+    template="plotly_dark",
     height=700
 )
 
 if mostrar_nombres:
     fig.update_traces(
         textposition='top center',
-        textfont=dict(size=8),
+        textfont=dict(size=8, color='white'),
         marker=dict(
             line=dict(width=0.5, color='DarkSlateGrey'),
             opacity=0.7
@@ -235,8 +235,7 @@ fig.update_layout(
     xaxis_title=variable_x_nombre,
     yaxis_title=variable_y_nombre,
     font=dict(size=12),
-    hovermode='closest',
-    plot_bgcolor='rgba(240,240,240,0.5)'
+    hovermode='closest'
 )
 
 # Agregar nombres de colores si hay variable de color
@@ -302,21 +301,23 @@ with col1:
     st.markdown(f"**Top 20 - {variable_x_nombre}**")
     
     # Preparar datos ordenados y eliminar NaN
-    df_bar_x = df_filtrado[['jugador', variable_x]].copy()
+    # Crear identificador único
+    df_bar_x = df_filtrado[['jugador', 'Temporada', 'TeamName', 'Competencia', variable_x]].copy()
+    df_bar_x['id_jugador'] = df_bar_x['jugador'] + ' - ' + df_bar_x['Temporada'].astype(str) + ' - ' + df_bar_x['TeamName'] + ' - ' + df_bar_x['Competencia']
     df_bar_x = df_bar_x.dropna(subset=[variable_x])
     df_bar_x = df_bar_x.sort_values(by=variable_x, ascending=True).tail(20)
     
     fig_bar_x = px.bar(
         df_bar_x,
         x=variable_x,
-        y='jugador',
+        y='id_jugador',
         orientation='h',
         labels={
             variable_x: variable_x_nombre,
-            'jugador': 'Jugador'
+            'id_jugador': 'Jugador'
         },
         title=f"Top 20 - {variable_x_nombre}",
-        template="plotly_white",
+        template="plotly_dark",
         height=600,
         color=variable_x,
         color_continuous_scale='RdYlGn'
@@ -334,21 +335,23 @@ with col2:
     st.markdown(f"**Top 20 - {variable_y_nombre}**")
     
     # Preparar datos ordenados y eliminar NaN
-    df_bar_y = df_filtrado[['jugador', variable_y]].copy()
+    # Crear identificador único
+    df_bar_y = df_filtrado[['jugador', 'Temporada', 'TeamName', 'Competencia', variable_y]].copy()
+    df_bar_y['id_jugador'] = df_bar_y['jugador'] + ' - ' + df_bar_y['Temporada'].astype(str) + ' - ' + df_bar_y['TeamName'] + ' - ' + df_bar_y['Competencia']
     df_bar_y = df_bar_y.dropna(subset=[variable_y])
     df_bar_y = df_bar_y.sort_values(by=variable_y, ascending=True).tail(20)
     
     fig_bar_y = px.bar(
         df_bar_y,
         x=variable_y,
-        y='jugador',
+        y='id_jugador',
         orientation='h',
         labels={
             variable_y: variable_y_nombre,
-            'jugador': 'Jugador'
+            'id_jugador': 'Jugador'
         },
         title=f"Top 20 - {variable_y_nombre}",
-        template="plotly_white",
+        template="plotly_dark",
         height=600,
         color=variable_y,
         color_continuous_scale='RdYlGn'
