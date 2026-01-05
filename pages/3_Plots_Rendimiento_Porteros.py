@@ -320,7 +320,8 @@ with col1:
         title=f"Top 20 - {variable_x_nombre}",
         template="plotly_dark",
         height=600,
-        color=variable_x
+        color=variable_x,
+        color_continuous_scale='Plasma'
     )
     
     fig_bar_x.update_layout(
@@ -353,7 +354,8 @@ with col2:
         title=f"Top 20 - {variable_y_nombre}",
         template="plotly_dark",
         height=600,
-        color=variable_y
+        color=variable_y,
+        color_continuous_scale='Plasma'
     )
     
     fig_bar_y.update_layout(
